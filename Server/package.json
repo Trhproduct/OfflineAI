@@ -1,0 +1,24 @@
+{
+  "name": "offlineai-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tiny proxy server between the React UI and local Ollama",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon --quiet server.js",
+    "start": "node server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

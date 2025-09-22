@@ -1,0 +1,57 @@
+Set-Content -Path .gitignore -Force -Value @'
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build & tooling
+.vite/
+.vitest/
+coverage/
+*.tsbuildinfo
+
+# Env / secrets
+.env
+Server/.env
+
+# Local data (HUGE – keep out of git)
+data/ollama/
+data/ollama/**
+
+# keep folder, not contents
+!data/ollama/.gitkeep
+
+# DB / caches
+*.sqlite
+*.sqlite3
+*.db
+db/
+tmp/
+.cache/
+.parcel-cache/
+.turbo/
+
+# OS junk
+Thumbs.db
+desktop.ini
+'@
