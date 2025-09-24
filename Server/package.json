@@ -4,21 +4,22 @@
   "private": true,
   "description": "Tiny proxy server between the React UI and local Ollama",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
-    "dev": "nodemon --quiet server.js",
     "start": "node server.js",
+    "dev": "nodemon --quiet server.js",
     "test": "echo \"No tests yet\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.6.1",
-    "express": "^5.1.0",
-    "morgan": "^1.10.1"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
