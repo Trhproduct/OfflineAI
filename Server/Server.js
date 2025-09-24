@@ -170,3 +170,4 @@ app.listen(PORT, () => {
   console.log(`🧠 Default model: ${CHAT_MODEL}`);
   warmUp();
 });
+~//here is a demo for git that how it work 
