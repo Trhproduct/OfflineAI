@@ -1,7 +1,7 @@
-// src/Chat.jsx
 import { useEffect, useRef, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+const HISTORY_WINDOW = 12; // keep last N messages
 
 export default function Chat() {
   const [messages, setMessages] = useState(() => {
@@ -16,30 +16,69 @@ export default function Chat() {
 
   useEffect(() => {
     localStorage.setItem("offlineai_chat", JSON.stringify(messages));
-    scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: "smooth" });
+    scrollerRef.current?.scrollTo({
+      top: scrollerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   async function send() {
     const text = input.trim();
     if (!text || busy) return;
+
     const user = { role: "user", content: text };
     setInput("");
     setBusy(true);
-    setMessages((m) => [...m, user]);
+
+    // add user + placeholder assistant for streaming
+    setMessages((m) => [...m, user, { role: "assistant", content: "" }]);
 
     try {
-      const convo = [...messages, user].map(({ role, content }) => ({ role, content }));
+      const convo = [...messages, user]
+        .slice(-HISTORY_WINDOW)
+        .map(({ role, content }) => ({ role, content }));
+
       const r = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: convo }),
+        body: JSON.stringify({ messages: convo, options: { num_predict: 256 } }),
       });
-      const data = await r.json();
-      const reply = data?.response ?? "(no response)";
-      setMessages((m) => [...m, { role: "assistant", content: reply }]);
-    } catch {
+
+      const ct = (r.headers.get("content-type") || "").toLowerCase();
+
+      // Non-streaming fallback (JSON)
+      if (ct.includes("application/json")) {
+        const data = await r.json();
+        const reply = data?.response ?? "(no response)";
+        setMessages((m) => {
+          const copy = m.slice();
+          copy[copy.length - 1] = { role: "assistant", content: reply };
+          return copy;
+        });
+        return;
+      }
+
+      // Streaming (text/ndjson)
+      if (!r.body) throw new Error("No response body");
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value || new Uint8Array(), { stream: true });
+        if (!chunk) continue;
+
+        setMessages((m) => {
+          const copy = m.slice();
+          const last = copy[copy.length - 1];
+          if (last?.role === "assistant") last.content += chunk;
+          return copy;
+        });
+      }
+    } catch (e) {
       setMessages((m) => [
-        ...m,
+        ...m.slice(0, -1),
         { role: "assistant", content: "⚠️ Can’t reach server on 3001. Is it running?" },
       ]);
     } finally {
